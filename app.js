@@ -4,6 +4,10 @@
  Your Partner's Name and student #: 
 */
 const express = require("express");
+const ejs = require("ejs");
+
+
+const fs = require('fs')
 
 let movieDicts = []
 let app = express();
@@ -36,10 +40,64 @@ app.get("/myListQueryString", (req, res) => {
   res.render("pages/index",  { movieList: fakeMovieDicts })
 });
 
+
+
+
+
 app.get("/search/:movieName", (req, res) => {
-  // Add your implementation here
+
+  let movieName = req.params.movieName;
+  movieName = movieName.toLowerCase();
+  
+    
+  fs.readFile('movieDescriptions.txt', 'utf8' , (err, data) => {
+    if (err) {
+      console.error(err)
+      return
+    }
+    
+    let movie = data.split("\n");
+    // console.log(movie);
+    // console.log(movie.length);
+    let fulldesc = {
+      title:"",
+      desc:""
+    };
+    for(let i =0 ; i<movie.length ; i++){
+      let fullMovie = movie[i].split(":");
+      let movieTitle = fullMovie[0].toLowerCase();
+      let moviedesc = fullMovie[1].toLowerCase();
+      // console.log(fullMovie);
+      // console.log(movieTitle);
+      // console.log(moviedesc);
+
+      // console.log(movieName);
+      if (movieName == movieTitle){
+        fulldesc.title = movieTitle;
+        fulldesc.desc = moviedesc;
+        res.render("pages/searchResult", {movieTitle:fulldesc.title,moviedesc:fulldesc.desc});
+        break;
+      }
+    }
+    res.render("pages/searchResult",{movieTitle:"Error",moviedesc:"Movie could not be found"})
+
+    
+    
+                  
+    
+  })
+  
+
+
+
+
+  
 });
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000 🚀");
 });
+
+
+
+
